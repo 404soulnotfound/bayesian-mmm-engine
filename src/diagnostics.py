@@ -83,7 +83,15 @@ def compute_channel_roas(
             ch_roas_draws.append(roas)
             
         ch_roas_draws = np.array(ch_roas_draws)
-        hdi = az.hdi(ch_roas_draws, hdi_prob=0.94)
+        try:
+            hdi = az.hdi(ch_roas_draws, prob=0.94)
+        except TypeError:
+            try:
+                hdi = az.hdi(ch_roas_draws, hdi_prob=0.94)
+            except Exception:
+                hdi = [np.percentile(ch_roas_draws, 3), np.percentile(ch_roas_draws, 97)]
+        except Exception:
+            hdi = [np.percentile(ch_roas_draws, 3), np.percentile(ch_roas_draws, 97)]
         
         roas_records.append({
             "channel": ch_name,

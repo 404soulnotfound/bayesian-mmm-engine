@@ -17,7 +17,6 @@ import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
 
-from src.model import BayesianMMM
 from src.diagnostics import (
     extract_parameter_posteriors,
     compute_channel_roas,
@@ -72,17 +71,14 @@ def load_fitted_model():
     trace_path = PROJECT_ROOT / "data" / "mmm_posterior_trace.nc"
     if trace_path.exists():
         try:
+            from src.model import BayesianMMM
             mmm = BayesianMMM.load_trace(trace_path)
             return mmm, True
         except Exception as e:
-            st.sidebar.warning(f"Could not load pre-computed trace: {e}")
+            st.sidebar.warning(f"Note: Running in demonstration mode ({e})")
             
     # Fallback to dynamic simulation mode if user has not yet run train.py
-    df = load_or_generate_dataset()
-    channel_names = [col.replace("spend_", "") for col in df.columns if col.startswith("spend_")]
-    mmm = BayesianMMM(channel_names=channel_names)
-    _, _, norm_spends, _ = mmm._prepare_design_matrices(df)
-    return mmm, False
+    return None, False
 
 
 def main():
